@@ -1,0 +1,100 @@
+
+-----------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SG_skill
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                int t = Convert.ToInt32(Console.ReadLine());
+                int count1 = 0;
+                var format = System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat;
+                if (t >= 1 && t <= 5000)
+                {
+                    while (count1 < t)
+                    {
+                        int n = Convert.ToInt32(Console.ReadLine());
+
+                        Subjects[] tuitions = new Subjects[n];
+                        int count2 = 0;
+                        if (n >= 2 && n <= 100)
+                        {
+                            while (count2 < n)
+                            {
+                                string[] sub = Console.ReadLine().Split(
+                                           new Char[] { ' ' },
+                                           StringSplitOptions.RemoveEmptyEntries).Select(item => item.ToString()
+                                           ).ToArray();
+
+                                if (DateTime.Parse(sub[1], format) < DateTime.Parse(sub[2], format))
+                                {
+                                    tuitions[count2] = new Subjects(sub[0], DateTime.Parse(sub[1], format), DateTime.Parse(sub[2], format));
+                                    count2++;
+                                }
+                            }
+                        }
+                            System.Diagnostics.Debug.WriteLine(TimeOverlap.Overlappings(tuitions));
+                            var overlappingMeetings = TimeOverlap.Overlappings(tuitions);
+                            int c = overlappingMeetings.Count();
+                            Console.WriteLine(count2 - overlappingMeetings.Count());
+                            tuitions = null;
+                            count1++;
+                            //count_overlap = 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+
+    public class Subjects
+    {
+        public string Subject { get; set; }
+        public DateTime Start { get; private set; }
+        public DateTime End { get; private set; }
+        public Subjects()
+        {
+
+        }
+        public Subjects(string subject, DateTime start, DateTime end)
+        {
+            this.Subject = subject;
+            this.Start = start;
+            this.End = end;
+        }
+
+    }
+
+    public static class TimeOverlap
+    {   
+        public static bool OverlapsWith(this Subjects x, Subjects y)
+         {
+           return x.Start < y.Start ? x.End > y.Start : y.End > x.Start;
+         }
+        public static IEnumerable<Subjects[]> Overlappings(this IEnumerable<Subjects> tuitions)
+        {
+            var last = (Subjects)null;
+            foreach (var tuition in tuitions.OrderBy(m => m.Start))
+            {
+                if (last != null && tuition.OverlapsWith(last))
+                {
+                    yield return new[] { last, tuition };
+                }
+                last = tuition;
+            }
+        }
+    }
+}
+
